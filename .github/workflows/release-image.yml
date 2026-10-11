@@ -1,0 +1,109 @@
+name: Release image
+
+# Publishes ghcr.io/<owner>/<repo>:
+#   - after CI succeeded on a push to main  -> sha-<short> and latest
+#   - on a version tag (v1.2.3)              -> sha-<short> and the version tags
+#     (only if CI was green for the tagged commit)
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  push:
+    tags: ["v*"]
+
+permissions: {}
+
+# One publish at a time; a running publish is never cancelled.
+concurrency:
+  group: release-image
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish
+    # workflow_run: only a successful CI run triggered by a push (never by a pull request)
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      actions: read
+    env:
+      # The commit that CI tested (for workflow_run github.sha would be the newest commit on main)
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+
+      - name: Require a successful CI run for the tagged commit
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$SHA" --status success --json databaseId --jq length)
+          if [ "$runs" -eq 0 ]; then
+            echo "::error::No successful CI run for $SHA. Tag a commit on main after CI is green."
+            exit 1
+          fi
+
+      - name: Compute image tags
+        id: meta
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_run" ]; then
+            tags=$(python3 scripts/image_tags.py "$image" "$SHA" --main)
+          else
+            tags=$(python3 scripts/image_tags.py "$image" "$SHA" --tag "$GITHUB_REF_NAME")
+          fi
+          {
+            echo "image=$image"
+            echo "tags<<EOF"
+            echo "$tags"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          args=()
+          while read -r tag; do args+=(-t "$tag"); done <<< "$TAGS"
+          docker build --build-arg REVISION="$SHA" "${args[@]}" .
+
+      - name: Log in to GHCR
+        env:
+          TOKEN: ${{ github.token }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Push image
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+        run: docker push --all-tags "$IMAGE"
+
+      - name: Verify pull by sha tag
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+        run: |
+          short="${SHA::7}"
+          docker images -q "$IMAGE" | sort -u | xargs docker rmi -f
+          docker pull "$IMAGE:sha-$short"
+          revision=$(docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE:sha-$short")
+          test "$revision" = "$SHA"
+
+      - name: Summary
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          {
+            echo "### Published image"
+            echo
+            echo '```'
+            echo "$TAGS"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

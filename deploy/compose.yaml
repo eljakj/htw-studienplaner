@@ -1,0 +1,36 @@
+# Deployment on the Docker VM.
+#
+# The image comes from GHCR. TLS and access control are handled by the
+# Cloudflare Tunnel in front of the VM: no certificates and no reverse proxy
+# here. The tunnel route points to http://<VM address>:${HOST_PORT}.
+#
+# Usage: see docs/deployment.md
+name: htw-studienplaner
+
+services:
+  web:
+    image: ghcr.io/eljakj/htw-studienplaner:${IMAGE_TAG:-latest}
+    container_name: htw-studienplaner
+    restart: unless-stopped
+    ports:
+      # host port : container port (nginx listens on 8080 inside the container)
+      - "${BIND_ADDRESS:-0.0.0.0}:${HOST_PORT:-8085}:8080"
+    # Hardening: nginx only needs a writable /tmp and no special rights.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

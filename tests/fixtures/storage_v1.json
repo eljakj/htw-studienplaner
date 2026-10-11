@@ -1,0 +1,10 @@
+{
+  "rev": 1760000000000,
+  "m": {
+    "B11": {"s": "ok", "n": ""},
+    "B21": {"s": "run", "n": "angemeldet"},
+    "B31": {"s": "plan", "n": "Kurs im WiSe"},
+    "WP1": {"s": "ok", "n": "", "mod": "B111"}
+  },
+  "names": {"B14": "Eigener Titel"}
+}

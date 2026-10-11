@@ -1,0 +1,8 @@
+# Allowlist: only what the image build needs. Everything else (profiles,
+# exports, .git, tests, dist) stays out of the build context.
+*
+!build.py
+!src/
+!demo/profile.demo.json
+!docker/
+**/__pycache__

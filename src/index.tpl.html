@@ -1,0 +1,1177 @@
+<title>Studienverlauf AI</title>
+<style>
+:root{
+  --bg:#f2f2ef; --fg:#1c1c1c; --muted:#66665f; --line:#cdcdc6; --box:#ffffff; --ring:#111111; --field:#f2f2ef;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#2d2d2f; --fg:#e7e7e5; --muted:#a3a3a0; --line:#4b4b4f; --box:#38383b; --ring:#ffffff; --field:#2d2d2f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#2d2d2f; --fg:#e7e7e5; --muted:#a3a3a0; --line:#4b4b4f; --box:#38383b; --ring:#ffffff; --field:#2d2d2f;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,"Segoe UI",Arial,sans-serif;padding-inline:clamp(16px,2vw,40px);padding-block:20px 40px}
+body.open{padding-bottom:420px}
+.wrap{width:100%}
+h1{font-size:22px;margin:0 0 2px;font-weight:700}
+.sub{color:var(--muted)}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.theme{display:flex;flex:none;border:1px solid var(--line);border-radius:2px;background:var(--box)}
+.theme button{font:inherit;background:none;border:0;color:var(--muted);padding:6px 9px;cursor:pointer;display:flex;align-items:center}
+.theme button+button{border-left:1px solid var(--line)}
+.theme button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+.sum{margin:18px 0 6px;font-size:16px}
+.sum b{font-size:28px;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:10px;border:1px solid var(--line);background:var(--box)}
+.bar i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:4px 16px;margin:8px 0 0;padding:0;list-style:none;color:var(--muted);font-size:12.5px}
+.leg li{display:flex;align-items:center;gap:6px}
+.leg b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.hx{width:16px;height:11px;display:inline-block;flex:none;clip-path:polygon(18% 0,82% 0,100% 50%,82% 100%,18% 100%,0 50%)}
+.cats{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tool{font:inherit;font-size:13px;color:var(--fg);background:var(--box);border:1px solid var(--line);border-radius:2px;padding:5px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tool:hover:not(:disabled){border-color:var(--fg)}
+.tool:disabled{opacity:.4;cursor:default}
+.tool[hidden]{display:none}
+.tool.right{margin-left:auto}
+#start{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:10px;font-size:13px}
+#start select,#start input{font:inherit;font-size:13px;color:var(--fg);background:var(--box);border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+#start input{width:5.5em}
+#start select:focus-visible,#start input:focus-visible{outline:2px solid var(--ring);outline-offset:1px}
+#startHint{color:var(--muted)}
+#welcome{margin-top:14px;padding:14px 16px;background:var(--box);border:1px solid var(--line);border-radius:2px}
+#welcome h2{margin:0 0 10px;font-size:16px}
+.wbtns{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#welcome .tool[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#welcome input{width:6em;font:inherit;font-size:13px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:2px;padding:5px 8px}
+#welcome input:focus-visible,#welcome .tool:focus-visible{outline:2px solid var(--ring);outline-offset:1px}
+#wBack{font:inherit;font-size:13px;background:none;border:0;padding:0 4px;color:var(--muted);text-decoration:underline;cursor:pointer}
+#importBox{margin-top:14px;padding:14px 16px;background:var(--box);border:1px solid var(--line);border-radius:2px;font-size:13px;line-height:1.5}
+#importBox h2{margin:0 0 8px;font-size:16px}
+#importBox ul{margin:0 0 10px;padding-left:18px}
+#importBox p{margin:0 0 10px}
+#importBox.err{border-left:3px solid #d9453a}
+#importBox .warn{color:var(--fg);font-weight:600}
+#importBox .tool:focus-visible{outline:2px solid var(--ring);outline-offset:1px}
+#profbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:12px;font-size:13px}
+#profbar[hidden]{display:none}
+#profbar select{font:inherit;font-size:13px;color:var(--fg);background:var(--box);border:1px solid var(--line);border-radius:2px;padding:4px 8px;max-width:100%}
+#profbar select:focus-visible,#profEditBox input:focus-visible{outline:2px solid var(--ring);outline-offset:1px}
+#profEditBox{margin-top:8px;padding:10px 12px;background:var(--box);border:1px solid var(--line);border-radius:2px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 12px;font-size:13px}
+#profEditBox[hidden]{display:none}
+#profEditBox label{display:flex;flex-direction:column;gap:3px;color:var(--muted);flex:1 1 200px;min-width:0}
+#profEditBox input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:2px;padding:5px 8px;min-width:0;width:100%}
+.bar-note{margin-top:10px;padding:8px 12px;font-size:13px;line-height:1.4;color:var(--fg);background:var(--box);border-left:3px solid #3b6fe0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.bar-note[hidden]{display:none}
+.bar-note.warn{border-left-color:#d9831a}
+.bar-note.danger{border-left-color:#d9453a}
+.bar-note span{flex:1 1 260px;min-width:0;overflow-wrap:anywhere}
+#nostore{margin-top:10px;padding:8px 12px;font-size:13px;line-height:1.4;color:var(--fg);background:var(--box);border-left:3px solid #d9831a}
+#sandbox{margin-top:10px;padding:8px 12px;font-size:13px;line-height:1.4;color:var(--fg);background:var(--box);border-left:3px solid #3b6fe0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+#sandbox[hidden]{display:none}
+a.tool{text-decoration:none}
+.foot a{color:inherit}
+#saveerr{margin-top:8px;font-size:12.5px;color:var(--muted)}
+#saveerr button{font:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer}
+
+.sem{display:flex;gap:10px;margin-top:6px}
+.lab{flex:none;width:clamp(58px,5vw,96px);padding-top:6px;color:var(--muted);font-size:12px;line-height:1.3}
+.lab strong{display:block;color:#d9d9d7;font-size:clamp(20px,1.8vw,30px);font-weight:700;line-height:1.1}
+:root[data-theme="light"] .lab strong{color:var(--fg)}
+.grid{flex:1;min-width:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}
+.a3{grid-column:span 3}.a1{grid-column:span 1}.a2{grid-column:span 2}
+.cellw{display:flex;min-width:0}
+.cellw.sel{filter:drop-shadow(2px 0 0 var(--ring)) drop-shadow(-2px 0 0 var(--ring)) drop-shadow(0 2px 0 var(--ring)) drop-shadow(0 -2px 0 var(--ring))}
+.pair{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pair .cellw{flex:1}
+
+.cell{
+  --chip:rgba(0,0,0,.3);
+  font:inherit;color:#111;text-align:center;cursor:pointer;width:100%;min-width:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:8px 9% 8px;min-height:clamp(98px,7.4vw,150px);background:var(--c);border:0;
+  clip-path:polygon(9% 0,91% 0,100% 50%,91% 100%,9% 100%,0 50%);
+}
+.cell:hover{filter:brightness(1.07)}
+.cell:focus-visible{outline:2px solid var(--ring);outline-offset:-4px}
+.cell .id{font-size:clamp(10px,.75vw,13px);opacity:.65;white-space:nowrap}
+.cell .nm{font-weight:600;font-size:clamp(11.5px,.95vw,16px);line-height:1.2;overflow-wrap:anywhere;hyphens:auto}
+.cell .st{margin-top:3px;font-size:clamp(10.5px,.8vw,13px);line-height:1.2;background:var(--chip);color:#fff;border-radius:11px;padding:2px 9px;max-width:100%;overflow-wrap:anywhere}
+.cell.mini{min-height:0;padding:3px 13%;gap:0}
+.cell.mini .top{display:flex;align-items:center;gap:5px;max-width:100%}
+.cell.mini .nm{font-size:clamp(11.5px,.9vw,15px)}
+.cell.mini .st{margin:0;padding:0 6px;font-size:10px;white-space:nowrap}
+.cell.mini .sub2{font-size:clamp(10.5px,.8vw,13px);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85;line-height:1.2}
+.s-ok{--chip:#176b34}.s-run{--chip:#1d44c9}.s-retake{--chip:#a8480b}.s-nospot{--chip:#b42318}
+.s-plan{opacity:.5}.s-plan:hover{opacity:.8}
+
+.foot{margin-top:24px;color:var(--muted);font-size:12.5px}
+.foot p{margin:0 0 6px}
+
+.panel{position:fixed;left:0;right:0;bottom:0;background:var(--box);border-top:1px solid var(--fg);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:5;max-height:75vh;overflow:auto}
+.panel-in{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.p-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.p-top strong{font-size:15px}
+.p-top small{color:var(--muted);margin-left:6px}
+.p-top button{font:inherit;background:none;border:0;color:var(--fg);text-decoration:underline;cursor:pointer;padding:2px;white-space:nowrap}
+.fld{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fld[hidden]{display:none}
+.fld span{color:var(--muted);font-size:12.5px}
+.fld input,.fld select{font:inherit;min-width:0;width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:2px;background:var(--field);color:var(--fg)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font:inherit;color:#fff;background:var(--chip);border:1px solid var(--line);border-radius:2px;padding:7px 10px;cursor:pointer;flex:1 1 105px;min-height:36px}
+.opt.s-plan{opacity:1;background:var(--field);color:var(--fg)}
+.opt[aria-pressed="true"]{outline:2px solid var(--ring);outline-offset:1px;font-weight:700}
+.hint{color:var(--muted);font-size:12.5px}
+.hint[hidden]{display:none}
+
+@media (max-width:760px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .a3{grid-column:span 2}.a1{grid-column:span 1}.a2{grid-column:span 3}
+}
+@media (max-width:480px){
+  .sem{flex-direction:column;gap:2px;margin-top:10px}
+  .lab{width:auto;padding:0;display:flex;gap:6px;align-items:baseline}
+  .lab strong{display:inline;font-size:16px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .a3{grid-column:span 2}.a1{grid-column:span 1}.a2{grid-column:span 1}
+  .tool.right{margin-left:0}
+}
+</style>
+
+<div class="wrap" lang="de">
+  <div class="head">
+    <div>
+      <h1>Studienverlauf</h1>
+      <div class="sub" id="subtitle">Angewandte Informatik (B), HTW Berlin</div>
+      <div id="start">
+        <label for="startTerm">Studienbeginn</label>
+        <select id="startTerm"><option value="">wählen</option><option value="SoSe">Sommersemester</option><option value="WiSe">Wintersemester</option></select>
+        <input id="startYear" type="number" inputmode="numeric" min="1000" max="9999" step="1" placeholder="Jahr" aria-label="Jahr des Studienbeginns">
+        <span id="startHint" role="status"></span>
+      </div>
+    </div>
+    <div class="theme" role="group" aria-label="Darstellung">
+      <button type="button" data-t="light" aria-label="Hell" title="Hell"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-t="dark" aria-label="Dunkel" title="Dunkel"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    </div>
+  </div>
+
+  <div id="nostore" role="status" hidden>Dein Plan wird in diesem Browser nicht gespeichert (privates Fenster oder gesperrter Speicher). Änderungen gehen verloren, sobald du die Seite schließt.</div>
+
+  <div id="profbar" role="group" aria-label="Pläne" hidden>
+    <label for="profSel">Plan</label>
+    <select id="profSel"></select>
+    <button type="button" class="tool" id="profNew">Neuer Plan</button>
+    <button type="button" class="tool" id="profEdit" aria-expanded="false" aria-controls="profEditBox">Name ändern</button>
+    <button type="button" class="tool" id="profDel">Löschen</button>
+  </div>
+  <div id="profEditBox" hidden>
+    <label>Name<input id="profName" type="text" maxlength="40" autocomplete="off"></label>
+    <label>Untertitel<input id="profSub" type="text" maxlength="80" autocomplete="off"></label>
+    <button type="button" class="tool" id="profEditDone">Fertig</button>
+  </div>
+  <div id="profConfirm" class="bar-note danger" role="alertdialog" aria-label="Plan löschen" hidden>
+    <span id="profConfirmText"></span>
+    <button type="button" class="tool" id="profConfirmYes">Löschen</button>
+    <button type="button" class="tool" id="profConfirmNo">Abbrechen</button>
+  </div>
+  <div id="profUndo" class="bar-note" role="status" hidden>
+    <span id="profUndoText"></span>
+    <button type="button" class="tool" id="profUndoBtn">Rückgängig</button>
+    <button type="button" class="tool" id="profUndoClose" aria-label="Hinweis schließen">OK</button>
+  </div>
+
+  <div id="catnote" class="bar-note warn" role="status" hidden>
+    <span id="catnoteText"></span>
+    <button type="button" class="tool" id="catnoteOk">Verstanden</button>
+  </div>
+  <div id="backupnote" class="bar-note warn" role="status" hidden>
+    <span id="backupnoteText"></span>
+    <button type="button" class="tool" id="backupnoteNow">Jetzt exportieren</button>
+    <button type="button" class="tool" id="backupnoteLater">Später</button>
+  </div>
+  <div id="sandbox" role="status" hidden>
+    <span>Beispielplan mit erfundenen Daten. Nichts davon wird gespeichert.</span>
+    <button type="button" class="tool" id="sandboxLeave">Eigenen Plan starten</button>
+  </div>
+
+  <section id="welcome" aria-label="Startauswahl" hidden>
+    <div id="welcomeStart">
+      <h2>Wie möchtest du starten?</h2>
+      <div class="wbtns">
+        <button type="button" class="tool" id="wOwn">Eigenen Plan starten</button>
+        <button type="button" class="tool" id="wImport">Plan importieren</button>
+        <a class="tool" id="wExample" href="#beispiel">Beispiel ansehen</a>
+      </div>
+    </div>
+    <div id="welcomeOwn" hidden>
+      <h2>Wann hast du dein Studium begonnen?</h2>
+      <div class="wbtns">
+        <button type="button" class="tool" data-term="SoSe" aria-pressed="false">Sommersemester</button>
+        <button type="button" class="tool" data-term="WiSe" aria-pressed="false">Wintersemester</button>
+        <input id="wYear" type="number" inputmode="numeric" min="1000" max="9999" step="1" placeholder="Jahr" aria-label="Jahr des Studienbeginns">
+        <button type="button" class="tool" id="wGo" disabled>Los</button>
+        <button type="button" id="wBack">Zurück</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="importBox" aria-label="Plan importieren" hidden>
+    <p id="importMsg" role="alert" hidden></p>
+    <div id="importPreview" hidden>
+      <h2 id="importTitle"></h2>
+      <ul id="importInfo"></ul>
+      <ul id="importLost"></ul>
+      <p id="importWarn" class="warn" hidden></p>
+    </div>
+    <div class="wbtns">
+      <button type="button" class="tool" id="importApply" hidden>Übernehmen</button>
+      <button type="button" class="tool" id="importNew" hidden>Als neuen Plan hinzufügen</button>
+      <button type="button" class="tool" id="importCancel">Schließen</button>
+    </div>
+  </section>
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
+
+  <div class="sum"><b id="lpnow">0</b> von 180 LP bestanden <span class="sub" id="pct"></span></div>
+  <div class="bar" id="bar"></div>
+  <ul class="leg" id="legend"></ul>
+  <ul class="leg cats" id="cats"></ul>
+
+  <div class="tools">
+    <button class="tool" id="undo" type="button" disabled title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Rückgängig</button>
+    <button class="tool" id="redo" type="button" disabled title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>Wiederholen</button>
+    <button class="tool" id="export" type="button" title="Plan als JSON-Datei sichern"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Exportieren</button>
+    <button class="tool" id="importBtn" type="button" title="Plan aus einer JSON-Datei übernehmen"><svg viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>Importieren</button>
+    <button class="tool right" id="reset" type="button" title="Alles leeren: alle Module auf „noch nicht angemeldet“, Wahlpflicht, AWE und Fremdsprache ohne Auswahl"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Semesterstart</button>
+  </div>
+  <div id="saveerr" hidden>Speichern fehlgeschlagen · <button type="button" id="retry">nochmal</button></div>
+
+  <div id="app"></div>
+
+  <div class="foot">
+    <p id="wpline"></p>
+    <p id="exampleLink"><a href="#beispiel">Beispielplan ansehen</a> (erfundene Daten, wird nicht gespeichert)</p>
+    <p>Feld antippen: Modul wählen, Status und Notiz ändern. Nur „bestanden“ zählt als erreichte LP. Abgeblasste Felder sind noch nicht belegt oder geplant.</p>
+  </div>
+</div>
+
+<div class="panel" id="panel" hidden>
+  <div class="panel-in">
+    <div class="p-top">
+      <div><strong id="pTitle"></strong><small id="pMeta"></small></div>
+      <button id="done" type="button">schließen</button>
+    </div>
+    <label class="fld" id="modRow" hidden><span id="modLab">Modul wählen</span><select id="modSel"></select></label>
+    <label class="fld" id="nameRow" hidden><span>Name</span><input id="nameIn" type="text" maxlength="40" autocomplete="off"></label>
+    <div class="opts" id="opts"></div>
+    <label class="fld"><span>Notiz</span><input id="noteIn" type="text" maxlength="28" placeholder="z. B. angemeldet" autocomplete="off"></label>
+    <div class="hint" id="evHint" hidden></div>
+  </div>
+</div>
+
+<!-- Katalog: Pflicht-, Wahlpflicht-, AWE- und Sprachmodule (LSF WiSe 2026/27). Wird beim Build eingefügt. -->
+<script type="application/json" id="catalog">__CATALOG__</script>
+<script type="application/json" id="example">__EXAMPLE__</script>
+<script>
+(function(){
+__SEMESTER_JS__
+__EXCHANGE_JS__
+
+  var CAT = JSON.parse(document.getElementById('catalog').textContent);
+  var CATS = CAT.cats, SLOTS = CAT.slots;
+  var SL = {}, WPBY = {}, AWEBY = {}, FSBY = {};
+  SLOTS.forEach(function(s){ SL[s.id] = s; });
+  CAT.wp.forEach(function(w){ WPBY[w.id] = w; });
+  CAT.awe.forEach(function(a){ AWEBY[a.id] = a; });
+  CAT.fs.forEach(function(f){ FSBY[f.id] = f; });
+  var SPECS = ['Ohne Spezialisierung','Software Engineering','Mobile Systems','Data Science'];
+  var FREI = SPECS[0];
+
+  var ST = {ok:'bestanden', run:'läuft jetzt', retake:'Prüfung nachholen', nospot:'kein Platz', plan:'später geplant'};
+  var ICON = {ok:'✓', run:'●', retake:'↻', nospot:'✕', plan:'○'};
+  var SCOL = {ok:'#2f9a59', run:'#3b6fe0', retake:'#d9831a', nospot:'#d9453a', plan:'#8a8a86'};
+  var ORDER = ['ok','run','retake','nospot','plan'];
+  var TOTAL = 180;
+  var LS = 'studienverlauf-ai-v2';   // Schema: siehe docs/PRD.md, Abschnitt Datenmodell
+
+  var $ = function(s){ return document.querySelector(s); };
+  // Schluessel aus dem Speicher nur als eigene Eigenschaften zulassen (nicht "toString", "__proto__" ...)
+  function own(o, k){ return Object.prototype.hasOwnProperty.call(o, k); }
+  function esc(t){ return String(t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  var state = {rev:0, m:{}, names:{}};
+  var sandbox = false;   // true: Beispielplan wird gezeigt, es wird nichts gespeichert
+  var selected = null;
+
+  /* ---------- state access ---------- */
+  function get(id){
+    var o = state.m[id], d = SL[id].def;
+    if (!o) return {s:d.s, n:d.n, mod:d.mod || null};
+    return {s:o.s, n:o.n || '', mod:(o.mod === undefined ? (d.mod || null) : o.mod)};
+  }
+  function put(id, s, n, mod){
+    var d = SL[id].def; mod = mod || null;
+    if (s === d.s && n === d.n && mod === (d.mod || null)) delete state.m[id];
+    else state.m[id] = {s:s, n:n, mod:mod};
+  }
+  function nameOf(id){ return state.names[id] || SL[id].name; }
+  function setName(id, v){
+    v = String(v).trim().slice(0,40);
+    if (!v || v === SL[id].name) delete state.names[id]; else state.names[id] = v;
+  }
+
+  /* ---------- what a slot currently shows ---------- */
+  function view(sl){
+    var g = get(sl.id), code = sl.id, nm = sl.label, has = false;
+    if (sl.t === 'fix'){ nm = nameOf(sl.id); has = true; }
+    else if (sl.t === 'wp'){ var w = g.mod && WPBY[g.mod]; if (w){ code = w.id; nm = w.short || w.name; has = true; } }
+    else if (sl.t === 'fs'){ var f = g.mod && FSBY[g.mod]; if (f){ nm = f.short; has = true; } }
+    else { var a = g.mod && AWEBY[g.mod]; if (a){ nm = a.name; has = true; } }
+    return {code:code, nm:nm, has:has};
+  }
+  function statusText(sl, g){ return g.n || ((sl.t !== 'fix' && !g.mod) ? 'noch nicht gewählt' : ST[g.s]); }
+
+  /* ---------- history (undo / redo) ---------- */
+  var undoS = [], redoS = [], typingBase = null, typingPushed = false;
+  function snap(){ return JSON.stringify({m:state.m, names:state.names}); }
+  function restore(s){ var o = JSON.parse(s); state.m = o.m || {}; state.names = o.names || {}; }
+  function tb(){ $('#undo').disabled = !undoS.length; $('#redo').disabled = !redoS.length; }
+  function pushUndo(s){ undoS.push(s); if (undoS.length > 100) undoS.shift(); redoS = []; }
+  function mutate(fn){
+    var before = snap(); fn();
+    if (snap() === before) return false;
+    pushUndo(before); render(); touch(); tb();
+    return true;
+  }
+  function typed(fn){
+    if (!typingPushed){ pushUndo(typingBase !== null ? typingBase : snap()); typingPushed = true; }
+    fn(); render(); touch(); tb();
+  }
+  function step(from, to){
+    if (!from.length) return;
+    to.push(snap()); restore(from.pop());
+    typingPushed = false; typingBase = snap();
+    render(); fillPanel(); touch(); tb();
+  }
+  function undo(){ step(undoS, redoS); }
+  function redo(){ step(redoS, undoS); }
+
+  /* ---------- render ---------- */
+  function cellHTML(sl, mini){
+    var g = get(sl.id), v = view(sl), lab = statusText(sl, g);
+    var aria = sl.id + ' ' + v.nm + ', ' + sl.lp + ' LP, ' + ST[g.s] + (g.n ? ', ' + g.n : '');
+    var open = '<button type="button" class="cell s-'+g.s+(mini?' mini':'')+'" data-id="'+sl.id+'" style="--c:'+CATS[sl.cat].color+'" aria-label="'+esc(aria)+'">';
+    if (mini){
+      return open + '<span class="top"><span class="nm">'+esc(sl.label)+'</span><span class="st">'+ICON[g.s]+'</span></span>' +
+        '<span class="sub2">'+esc(v.has ? v.nm : lab)+'</span></button>';
+    }
+    var idl = v.code + (sl.t === 'wp' && v.has ? ' · WP' : '') + ' · ' + sl.lp + ' LP';
+    return open + '<span class="id">'+esc(idl)+'</span><span class="nm">'+esc(v.nm)+'</span>' +
+      '<span class="st">'+ICON[g.s]+' '+esc(lab)+'</span></button>';
+  }
+
+  function render(){
+    var h = '', sums = {ok:0,run:0,retake:0,nospot:0,plan:0};
+    var nowSem = currentSemester(profile.start, new Date()).sem;
+    for (var sem = 6; sem >= 1; sem--){
+      var list = SLOTS.filter(function(s){ return s.sem === sem; });
+      var tot = 0, done = 0, body = '', pairBuf = [];
+      list.forEach(function(sl){
+        var g = get(sl.id); tot += sl.lp; sums[g.s] += sl.lp; if (g.s === 'ok') done += sl.lp;
+      });
+      list.forEach(function(sl){
+        if (sl.pair){ pairBuf.push(sl); return; }
+        body += '<div class="cellw '+(sl.c||'')+(selected===sl.id?' sel':'')+'">' + cellHTML(sl,false) + '</div>';
+      });
+      if (pairBuf.length){
+        body += '<div class="pair">' + pairBuf.map(function(sl){
+          return '<div class="cellw'+(selected===sl.id?' sel':'')+'">' + cellHTML(sl,true) + '</div>';
+        }).join('') + '</div>';
+      }
+      h += '<section class="sem"><div class="lab"><strong>'+sem+'.</strong>' + done + '/' + tot + ' LP' +
+        (sem === nowSem ? ' · jetzt' : '') + '</div><div class="grid">'+body+'</div></section>';
+    }
+    $('#app').innerHTML = h;
+
+    $('#lpnow').textContent = sums.ok;
+    $('#pct').textContent = '(' + Math.round(sums.ok / TOTAL * 100) + ' %)';
+    $('#bar').innerHTML = ORDER.filter(function(k){ return k !== 'plan'; }).map(function(k){
+      return '<i style="width:'+(sums[k]/TOTAL*100)+'%;background:'+SCOL[k]+'"></i>';
+    }).join('');
+    $('#legend').innerHTML = ORDER.map(function(k){
+      return '<li><span class="dot" style="background:'+SCOL[k]+'"></span>'+ST[k]+' <b>'+sums[k]+'</b></li>';
+    }).join('');
+    $('#wpline').textContent = wpLine();
+  }
+
+  function wpLine(){
+    var n = 0, pass = 0, all = {}, done = {}, freeAll = false, freeDone = false;
+    SLOTS.forEach(function(sl){
+      if (sl.t !== 'wp') return;
+      var g = get(sl.id); if (!g.mod) return;
+      var sp = WPBY[g.mod].spec, ok = g.s === 'ok';
+      n++; if (ok) pass++;
+      if (sp === FREI){ freeAll = true; if (ok) freeDone = true; }
+      else { all[sp] = 1; if (ok) done[sp] = 1; }
+    });
+    function lst(o, f){ var k = Object.keys(o); return k.join(', ') + (f ? (k.length ? ' + ' : '') + 'ohne Spezialisierung' : ''); }
+    var t = 'Wahlpflicht: ' + n + ' von 5 gewählt' + (pass ? ', ' + pass + ' bestanden' : '') + '.';
+    // Laut SPO erscheinen nur bestandene Wahlpflichtmodule auf dem Zeugnis
+    if (pass) t += ' Zeugnis bisher: ' + lst(done, freeDone) + '.';
+    if (n > pass) t += ' Insgesamt gewählt: ' + lst(all, freeAll) + '.';
+    return t;
+  }
+
+  /* ---------- prerequisites ---------- */
+  function passedSet(){
+    var s = {};
+    SLOTS.forEach(function(sl){
+      var g = get(sl.id); if (g.s !== 'ok') return;
+      if (sl.t === 'fix') s[sl.id] = 1; else if (sl.t === 'wp' && g.mod) s[g.mod] = 1;
+    });
+    return s;
+  }
+  function modName(code){
+    var sl = SL[code]; if (sl && sl.t === 'fix') return nameOf(code);
+    var w = WPBY[code]; return w ? (w.short || w.name) : code;
+  }
+  function evText(sl){
+    var g = get(sl.id), ev = [], nv = [];
+    if (sl.t === 'fix'){ ev = sl.ev || []; nv = sl.nv || []; }
+    else if (sl.t === 'wp' && g.mod){ ev = WPBY[g.mod].ev || []; }
+    if (!ev.length && !nv.length) return '';
+    var ps = passedSet();
+    var fmt = function(c){ return c + ' ' + modName(c) + ' ' + (ps[c] ? '✓' : '✗'); };
+    var parts = [];
+    if (nv.length) parts.push('Pflicht-Voraussetzung: ' + nv.map(fmt).join(', '));
+    if (ev.length) parts.push('Empfohlen vorher: ' + ev.map(fmt).join(', '));
+    return parts.join(' · ') + '   (✓ bestanden, ✗ noch offen)';
+  }
+
+  /* ---------- panel ---------- */
+  function usedElsewhere(sl){
+    var u = {};
+    SLOTS.forEach(function(o){ if (o.t === sl.t && o.id !== sl.id){ var m = get(o.id).mod; if (m) u[m] = 1; } });
+    return u;
+  }
+  function opt(val, text, sel, dis){
+    return '<option value="'+esc(val)+'"'+(sel?' selected':'')+(dis?' disabled':'')+'>'+esc(text)+'</option>';
+  }
+  function buildSelect(sl, cur){
+    var used = usedElsewhere(sl), h = opt('', '– noch nicht gewählt –', !cur, false), groups = {}, order = [];
+    function add(grp, o){ if (!groups[grp]){ groups[grp] = []; order.push(grp); } groups[grp].push(o); }
+    if (sl.t === 'wp'){
+      SPECS.forEach(function(sp){ groups[sp] = []; order.push(sp); });
+      CAT.wp.forEach(function(w){
+        add(w.spec, opt(w.id, w.id + ' · ' + w.name + (w.lsf ? '' : ' · nicht im LSF WiSe 26/27') + (used[w.id] ? ' · schon belegt' : ''), w.id === cur, !!used[w.id]));
+      });
+    } else if (sl.t === 'fs'){
+      CAT.fs.forEach(function(f){ add(f.grp, opt(f.id, f.name + ' · ' + f.no, f.id === cur, !!used[f.id])); });
+    } else {
+      CAT.awe.slice().sort(function(a,b){ return a.name.localeCompare(b.name, 'de'); }).forEach(function(a){
+        var dis = !!used[a.id] || a.bookable === false;
+        add('AWE-Angebot (LSF)', opt(a.id, a.name + ' · ' + a.no + (a.bookable === false ? ' · nicht belegbar' : '') + (used[a.id] ? ' · schon belegt' : ''), a.id === cur, dis));
+      });
+    }
+    order.forEach(function(g){ h += '<optgroup label="'+esc(g)+'">' + groups[g].join('') + '</optgroup>'; });
+    return h;
+  }
+  function fillPanel(){
+    if (!selected) return;
+    var sl = SL[selected], g = get(selected), v = view(sl);
+    $('#pTitle').textContent = v.nm;
+    var meta = v.code + ' · ' + sl.lp + ' LP · ' + sl.sem + '. Sem.';
+    if (sl.t === 'wp') meta += ' · Wahlpflicht' + (v.has ? ' · ' + WPBY[g.mod].spec : '');
+    else if (sl.t === 'awe') meta += ' · AWE';
+    else if (sl.t === 'fs') meta += ' · Fremdsprache';
+    $('#pMeta').textContent = meta;
+
+    var flexible = sl.t !== 'fix';
+    $('#modRow').hidden = !flexible; $('#nameRow').hidden = flexible;
+    if (flexible){
+      $('#modLab').textContent = sl.t === 'wp' ? 'Wahlpflichtmodul wählen' : sl.t === 'fs' ? 'Sprachkurs wählen' : 'AWE-Kurs wählen';
+      $('#modSel').innerHTML = buildSelect(sl, g.mod);
+    } else {
+      $('#nameIn').value = nameOf(selected);
+      $('#nameIn').placeholder = sl.name;
+    }
+    $('#opts').innerHTML = ORDER.map(function(k){
+      return '<button type="button" class="opt s-'+k+'" data-s="'+k+'" aria-pressed="'+(g.s===k)+'">'+ICON[k]+' '+ST[k]+'</button>';
+    }).join('');
+    $('#noteIn').value = g.n;
+    var ev = evText(sl);
+    $('#evHint').hidden = !ev; $('#evHint').textContent = ev;
+  }
+  function openPanel(id){
+    selected = id;
+    fillPanel();
+    $('#panel').hidden = false;
+    document.body.classList.add('open');
+    render();
+    var el = document.querySelector('.cell[data-id="'+id+'"]');
+    if (el){
+      var r = el.getBoundingClientRect(), ph = $('#panel').offsetHeight, vis = window.innerHeight - ph;
+      if (r.bottom > vis - 12) window.scrollBy({top: r.bottom - vis + 24, behavior:'smooth'});
+      else if (r.top < 0) window.scrollBy({top: r.top - 24, behavior:'smooth'});
+    }
+  }
+  function closePanel(){
+    selected = null;
+    $('#panel').hidden = true;
+    document.body.classList.remove('open');
+    render();
+  }
+
+  /* ---------- persistence: nur localStorage, kein Backend (Schema v2) ---------- */
+  var PROFILE_ID = /^p\d{1,6}$/, DEFAULT_ID = 'p1', DEFAULT_NAME = 'Mein Plan';
+  var NAME_MAX = 40, SUBTITLE_MAX = 80, MAX_PROFILES = 20;
+  // Kopfdaten des aktiven Profils (dieses Tabs). created / lastExport: Zeitpunkte in ms, 0 = unbekannt
+  function freshProfile(id, name){ return {id:id, name:name, start:null, subtitle:'', created:0, lastExport:0}; }
+  var profile = freshProfile(DEFAULT_ID, DEFAULT_NAME);
+  // Kann der Browser nicht schreiben, lebt der ganze Speicher (alle Profile) nur im Arbeitsspeicher
+  var memStore = null;
+
+  function readStore(){
+    if (memStore) return memStore;
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem(LS)); } catch(e){}
+    var ok = raw && raw.v === 2 && raw.profiles && typeof raw.profiles === 'object' && !Array.isArray(raw.profiles);
+    return ok ? raw : null;
+  }
+  // Schreibt den ganzen Speicher. false, wenn der Browser das Schreiben verweigert.
+  function writeStore(store){
+    if (!storageOk){ memStore = store; return true; }
+    try { localStorage.setItem(LS, JSON.stringify(store)); return true; } catch(e){ return false; }
+  }
+  // IDs der brauchbaren Profile, aufsteigend (p2 vor p10)
+  function profileIds(store){
+    if (!store) return [];
+    return Object.keys(store.profiles).filter(function(k){
+      var p = store.profiles[k]; return PROFILE_ID.test(k) && p && typeof p === 'object';
+    }).sort(function(a, b){ return Number(a.slice(1)) - Number(b.slice(1)); });
+  }
+  function nextId(store){
+    var max = 0;
+    Object.keys(store.profiles).forEach(function(k){ if (PROFILE_ID.test(k)) max = Math.max(max, Number(k.slice(1))); });
+    return 'p' + (max + 1);
+  }
+  // Kann der Browser schreiben? (privates Fenster, gesperrter Speicher: Zugriff oder Schreiben wirft)
+  var storageOk = (function(){
+    try { var k = 'studienverlauf-test'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return true; }
+    catch(e){ return false; }
+  })();
+  // Nur Felder, die gesetzt sind (additives Schema): subtitle, created, lastExport fehlen sonst
+  function profileRecord(){
+    var r = {name:profile.name, start:profile.start, rev:state.rev, m:state.m, names:state.names};
+    if (profile.subtitle) r.subtitle = profile.subtitle;
+    if (profile.created) r.created = profile.created;
+    if (profile.lastExport) r.lastExport = profile.lastExport;
+    return r;
+  }
+  function save(){
+    if (sandbox) return;   // Beispielplan: nie schreiben
+    var store = readStore() || {v:2, active:profile.id, profiles:{}};
+    store.active = profile.id;
+    store.profiles[profile.id] = profileRecord();
+    $('#saveerr').hidden = writeStore(store);
+  }
+  // Wird nur bei einer Aenderung geschrieben, nie beim blossen Oeffnen der Seite
+  // (Ausnahmen: die einmalige Uebernahme von v1 und das Bereinigen entfernter Module, siehe startState()).
+  function touch(){
+    if (sandbox) return;   // Beispielplan: Aenderungen gelten nur bis zum Verlassen
+    state.rev = Date.now();
+    if (!profile.created) profile.created = state.rev;   // Ausgangspunkt der Sicherungs-Erinnerung
+    save(); planChosen = true; paintWelcome(); paintBackup();
+  }
+
+  function validMod(sl, c){
+    if (c === null) return true;
+    if (typeof c !== 'string') return false;
+    return sl.t === 'wp' ? own(WPBY, c) : sl.t === 'fs' ? own(FSBY, c) : sl.t === 'awe' ? own(AWEBY, c) : false;
+  }
+  // Prueft einen gespeicherten oder importierten Stand. Gibt den bereinigten Stand zurueck und in `report`,
+  // was verworfen wurde (fuer die Vorschau beim Import): Platz-IDs bzw. die Anzahl gekuerzter Notizen.
+  function sane(rawM, rawNames){
+    var clean = {}, cn = {}, report = {slots:[], status:[], mods:[], modVals:{}, names:[], notes:0};
+    Object.keys(rawM).forEach(function(k){
+      var o = rawM[k];
+      if (!own(SL, k)){ report.slots.push(k); return; }
+      if (!o || typeof o !== 'object' || typeof o.s !== 'string' || !own(ST, o.s)){ report.status.push(k); return; }
+      var sl = SL[k], mod = null;
+      if (sl.t !== 'fix'){
+        var cand = (o.mod !== undefined) ? o.mod : (sl.def.mod || null);
+        if (validMod(sl, cand)) mod = cand;
+        else { mod = sl.def.mod || null; report.mods.push(k); report.modVals[k] = String(cand).slice(0, 20); }
+      }
+      if (String(o.n || '').length > 28) report.notes++;
+      clean[k] = {s:o.s, n:String(o.n || '').slice(0,28), mod:mod};
+    });
+    Object.keys(rawNames || {}).forEach(function(id){
+      var v = rawNames[id];
+      if (!own(SL, id) || SL[id].t !== 'fix' || typeof v !== 'string'){ report.names.push(id); return; }
+      if (v.trim() && v.trim() !== SL[id].name) cn[id] = v.trim().slice(0,40);
+    });
+    return {m:clean, names:cn, report:report};
+  }
+  function saneStart(st){
+    var ok = st && typeof st === 'object' && (st.term === 'SoSe' || st.term === 'WiSe') && /^\d{4}$/.test(String(st.year));
+    return ok ? {term:st.term, year:Number(st.year)} : null;
+  }
+  // Studienbeginn: Auswahl im Seitenkopf <-> profile.start; "jetzt" und der Hinweis kommen aus currentSemester()
+  // setFields: Felder aus dem gespeicherten Stand setzen (Laden, anderer Tab); nach einer Eingabe nur den Hinweis
+  function paintStart(setFields){
+    var st = profile.start;
+    if (setFields){
+      $('#startTerm').value = st ? st.term : '';
+      $('#startYear').value = st ? st.year : '';
+    }
+    var r = currentSemester(st, new Date());
+    $('#startHint').textContent =
+      r.state === 'none' ? 'Bitte wählen, dann wird das aktuelle Semester markiert.' :
+      r.state === 'future' ? 'Studium beginnt im ' + r.label :
+      r.state === 'over' ? 'über Regelstudienzeit' : 'aktuell: ' + r.sem + '. Semester';
+  }
+  function readStart(){
+    var term = $('#startTerm').value, year = $('#startYear').value.trim();
+    return saneStart({term: term, year: year});   // unvollstaendig oder ungueltig: kein Studienbeginn
+  }
+  function saneText(v, max){ return typeof v === 'string' ? v.trim().slice(0, max) : ''; }
+  function saneTime(v){ return (typeof v === 'number' && isFinite(v) && v > 0 && v < 8.64e15) ? Math.floor(v) : 0; }
+  // Was beim letzten Laden verworfen wurde (siehe sane()); null, wenn nichts geladen wurde
+  var lastReport = null;
+  // Liest ein Profil aus dem Speicher; alles Unbrauchbare wird verworfen.
+  // prefer: gewuenschte Profil-ID (dieser Tab), sonst das zuletzt benutzte Profil, sonst das erste.
+  function loadState(prefer){
+    var store = readStore(), ids = profileIds(store);
+    var id = ids.indexOf(prefer) >= 0 ? prefer : ids.indexOf(store && store.active) >= 0 ? store.active : ids[0];
+    lastReport = null;
+    if (!id){
+      profile = freshProfile(DEFAULT_ID, DEFAULT_NAME);
+      return {rev:0, m:{}, names:{}};
+    }
+    var p = store.profiles[id];
+    var s = sane(p.m && typeof p.m === 'object' ? p.m : {}, p.names && typeof p.names === 'object' ? p.names : {});
+    lastReport = s.report;
+    profile = {id:id, name:saneText(p.name, NAME_MAX) || DEFAULT_NAME, start:saneStart(p.start),
+               subtitle:saneText(p.subtitle, SUBTITLE_MAX), created:saneTime(p.created), lastExport:saneTime(p.lastExport)};
+    return {rev:Number(p.rev) || 0, m:s.m, names:s.names};
+  }
+
+  /* ---------- Uebernahme des alten Schluessels (v1 -> v2) ---------- */
+  var OLD_LS = 'studienverlauf-ai-v1';
+  function hasKey(key){
+    try { return localStorage.getItem(key) !== null; } catch(e){ return false; }
+  }
+  // Gibt den bereinigten v1-Stand zurueck, oder null, wenn v1 fehlt, kaputt oder leer ist.
+  function readV1(){
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem(OLD_LS)); } catch(e){}
+    if (!raw || typeof raw !== 'object' || !raw.m || typeof raw.m !== 'object' || Array.isArray(raw.m)) return null;
+    var s = sane(raw.m, raw.names && typeof raw.names === 'object' ? raw.names : {});
+    if (!Object.keys(s.m).length && !Object.keys(s.names).length) return null;   // nichts, was sich zu uebernehmen lohnt
+    lastReport = s.report;
+    return {rev:Number(raw.rev) || 0, m:s.m, names:s.names};
+  }
+  // Start der Seite: Gibt es schon einen v2-Schluessel (auch einen unbrauchbaren), wird nie migriert.
+  // Sonst wird ein brauchbarer v1-Stand einmal als Profil "Mein Plan" in v2 gespeichert.
+  // Der v1-Schluessel bleibt unveraendert als Rueckfallebene stehen.
+  function startState(){
+    var old = hasKey(LS) ? null : readV1();
+    if (!old) return loadState();
+    profile = freshProfile(DEFAULT_ID, DEFAULT_NAME);
+    state = old;
+    save();
+    return old;
+  }
+
+  /* ---------- events ---------- */
+  $('#app').addEventListener('click', function(e){
+    var b = e.target.closest('.cell'); if (!b) return;
+    var id = b.getAttribute('data-id');
+    if (selected === id) closePanel(); else openPanel(id);
+  });
+  $('#opts').addEventListener('click', function(e){
+    var b = e.target.closest('.opt'); if (!b || !selected) return;
+    var s = b.getAttribute('data-s'), g = get(selected), id = selected;
+    if (s === g.s) return;
+    var n = (s === SL[id].def.s) ? SL[id].def.n : '';
+    if (mutate(function(){ put(id, s, n, g.mod); })) fillPanel();
+  });
+  $('#modSel').addEventListener('change', function(){
+    if (!selected) return;
+    var id = selected, sl = SL[id], g = get(id), nm = this.value || null;
+    if (nm === (g.mod || null)) return;
+    mutate(function(){
+      if (nm === (sl.def.mod || null)) put(id, sl.def.s, sl.def.n, nm);
+      else put(id, 'plan', '', nm);
+    });
+    fillPanel();
+  });
+  [['#nameIn', function(id, v){ if (SL[id].t === 'fix'){ setName(id, v); $('#pTitle').textContent = nameOf(id); } }],
+   ['#noteIn', function(id, v){ var g = get(id); put(id, g.s, v, g.mod); }]].forEach(function(p){
+    var el = $(p[0]);
+    el.addEventListener('focus', function(){ typingBase = snap(); typingPushed = false; });
+    el.addEventListener('blur', function(){ typingPushed = false; });
+    el.addEventListener('input', function(){
+      if (!selected) return;
+      var id = selected, v = el.value;
+      typed(function(){ p[1](id, v); });
+    });
+  });
+  $('#done').addEventListener('click', closePanel);
+  $('#undo').addEventListener('click', undo);
+  $('#redo').addEventListener('click', redo);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && selected){ closePanel(); return; }
+    var t = e.target && e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+    if ((e.ctrlKey || e.metaKey) && !e.altKey){
+      var k = e.key.toLowerCase();
+      if (k === 'z' && !e.shiftKey){ e.preventDefault(); undo(); }
+      else if (k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); redo(); }
+    }
+  });
+  document.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'retry'){ touch(); }
+  });
+
+  // Semesterstart: wirklich alles leer, es bleibt nichts gespeichert (nur Rückgängig in dieser Sitzung)
+  $('#reset').addEventListener('click', function(){
+    if (mutate(function(){
+      var m = {};
+      SLOTS.forEach(function(sl){
+        var d = sl.def, n = sl.t === 'fix' ? 'noch nicht angemeldet' : '';
+        if (!(d.s === 'plan' && d.n === n && !d.mod)) m[sl.id] = {s:'plan', n:n, mod:null};
+      });
+      state.m = m; state.names = {};
+    })) fillPanel();
+  });
+
+  /* ---------- Export (A7a): eine Datei im Browser, keine Anfrage an einen Server ---------- */
+  function exportPlan(){
+    if (sandbox) return;
+    var now = new Date();
+    var data = buildExport(profile, state, (CAT.meta && CAT.meta.catalog) || '', now);
+    var blob = new Blob([JSON.stringify(data, null, 2) + '\n'], {type: 'application/json'});
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = exportFileName(profile.name, now);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    // Zeitpunkt der letzten Sicherung merken (A10). Ein Plan, den es noch nicht im Speicher gibt, wird dafuer nicht angelegt.
+    profile.lastExport = now.getTime();
+    if (profileIds(readStore()).indexOf(profile.id) >= 0) save();
+    paintBackup();
+  }
+  $('#export').addEventListener('click', exportPlan);
+
+  /* ---------- Import (A7b): Datei waehlen, pruefen, Vorschau, erst dann uebernehmen ---------- */
+  // Nichts am Plan aendert sich, bevor "Uebernehmen" geklickt wird. Alles aus der Datei wird nur als Text gesetzt.
+  var pending = null;   // der gepruefte Stand, der auf "Uebernehmen" wartet
+  function closeImport(){
+    pending = null;
+    $('#importBox').hidden = true;
+    $('#importBox').classList.remove('err');
+  }
+  function showImportError(msg){
+    pending = null;
+    $('#importBox').hidden = false; $('#importBox').classList.add('err');
+    $('#importMsg').hidden = false; $('#importMsg').textContent = msg;
+    $('#importPreview').hidden = true; $('#importApply').hidden = true; $('#importNew').hidden = true;
+    $('#importCancel').textContent = 'Schließen';
+  }
+  // Platz-IDs aus einer Datei sind fremde Eingaben: kurz halten, die Seite setzt sie nur als Text
+  function idList(a){
+    return a.slice(0, 5).map(function(x){ return String(x).slice(0, 20); }).join(', ') + (a.length > 5 ? ' …' : '');
+  }
+  function passedLp(m){
+    var lp = 0;
+    SLOTS.forEach(function(sl){ var e = m[sl.id]; if ((e ? e.s : sl.def.s) === 'ok') lp += sl.lp; });
+    return lp;
+  }
+  // Datei -> bereinigter Stand (dieselbe sane()-Pruefung wie beim Laden) plus Bericht fuer die Vorschau
+  function prepareImport(p){
+    var s = sane(p.m, p.names), m = {};
+    Object.keys(s.m).forEach(function(k){   // wie im Speicher: nur Abweichungen vom Katalog
+      var e = s.m[k], d = SL[k].def;
+      if (!(e.s === d.s && e.n === d.n && e.mod === (d.mod || null))) m[k] = e;
+    });
+    var start = saneStart(p.start);
+    return {kind:p.kind, m:m, names:s.names, report:s.report, lp:passedLp(m), start:start, subtitle:saneText(p.subtitle, SUBTITLE_MAX),
+            startBad:p.start !== null && !start, catalog:p.catalog, exportedAt:p.exportedAt,
+            name:p.name.trim().slice(0, NAME_MAX) || DEFAULT_NAME};
+  }
+  function planIsEmpty(){ return !Object.keys(state.m).length && !Object.keys(state.names).length && !profile.start; }
+  function showImportPreview(p){
+    pending = p;
+    var info = ['Name: ' + p.name, 'Studienbeginn: ' + (p.start ? termLabel(p.start) : 'keiner')], lost = [], r = p.report;
+    if (p.subtitle) info.push('Untertitel: ' + p.subtitle);
+    if (p.kind === 'v1') info.push('Alte Datei (Version 1): Name und Studienbeginn fehlen darin.');
+    var cur = CAT.meta && CAT.meta.catalog;
+    if (p.catalog) info.push('Katalogstand der Datei: ' + p.catalog + (cur && cur !== p.catalog ? ' (diese Seite: ' + cur + ')' : ''));
+    var when = new Date(p.exportedAt);
+    if (p.exportedAt && !isNaN(when.getTime())) info.push('Exportiert am: ' + when.toLocaleDateString('de-DE'));
+    if (r.slots.length) lost.push('Unbekannte Plätze verworfen (' + r.slots.length + '): ' + idList(r.slots));
+    if (r.status.length) lost.push('Ungültiger Status verworfen (' + r.status.length + '): ' + idList(r.status));
+    if (r.mods.length) lost.push('Ungültiges Modul verworfen (' + r.mods.length + '): ' + idList(r.mods));
+    if (r.names.length) lost.push('Ungültige Namen verworfen (' + r.names.length + '): ' + idList(r.names));
+    if (r.notes) lost.push('Notizen auf 28 Zeichen gekürzt (' + r.notes + ')');
+    if (p.startBad) lost.push('Studienbeginn ungültig, wird nicht übernommen');
+    function fill(sel, items){
+      var ul = $(sel); ul.textContent = '';
+      items.forEach(function(t){ var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+      ul.hidden = !items.length;
+    }
+    fill('#importInfo', info); fill('#importLost', lost);
+    $('#importTitle').textContent = p.lp + ' LP bestanden – übernehmen?';
+    var warn = $('#importWarn');
+    warn.hidden = planIsEmpty();
+    warn.textContent = 'Dein aktueller Plan (' + passedLp(state.m) + ' LP bestanden) wird ersetzt. Tipp: Exportiere ihn vorher, oder lege die Datei als neuen Plan an.';
+    $('#importNew').hidden = planIsEmpty() || profileIds(readStore()).length >= MAX_PROFILES;
+    $('#importBox').hidden = false; $('#importBox').classList.remove('err');
+    $('#importMsg').hidden = true; $('#importPreview').hidden = false;
+    $('#importApply').hidden = false; $('#importCancel').textContent = 'Abbrechen';
+    $('#importApply').focus();
+  }
+  // asNew: als neuen Plan anlegen, der bisherige bleibt unveraendert
+  function applyImport(asNew){
+    var p = pending; if (!p || sandbox) return;
+    if (asNew){
+      save();   // der bisherige Plan steht sicher im Speicher
+      var store = readStore();
+      if (profileIds(store).length >= MAX_PROFILES) return;
+      profile = freshProfile(nextId(store), p.name);
+      profile.created = Date.now();
+    }
+    state = {rev:0, m:p.m, names:p.names};
+    profile.name = p.name; profile.start = p.start; profile.subtitle = p.subtitle;
+    undoS = []; redoS = []; typingBase = null; typingPushed = false;
+    if (selected) closePanel();
+    closeImport();
+    touch(); paintStart(true); render(); tb();
+  }
+  function chooseFile(){ if (!sandbox) $('#importFile').click(); }
+  $('#importBtn').addEventListener('click', chooseFile);
+  $('#wImport').addEventListener('click', chooseFile);
+  $('#importApply').addEventListener('click', function(){ applyImport(false); });
+  $('#importNew').addEventListener('click', function(){ applyImport(true); });
+  $('#importCancel').addEventListener('click', closeImport);
+  $('#importFile').addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    this.value = '';   // dieselbe Datei kann danach noch einmal gewaehlt werden
+    if (!f || sandbox) return;
+    if (importTooLarge(f.size)){ showImportError(IMPORT_TOO_LARGE); return; }
+    f.text().then(function(text){
+      var r = parseImport(text);
+      if (!r.ok) showImportError(r.error); else showImportPreview(prepareImport(r));
+    }, function(){ showImportError('Die Datei konnte nicht gelesen werden.'); });
+  });
+
+  /* ---------- Hinweise: Katalog geaendert, Sicherung faellig (A10) ---------- */
+  var catnoteText = '', backupLater = false;
+  function paintCatnote(){
+    $('#catnote').hidden = !catnoteText || sandbox;
+    $('#catnoteText').textContent = catnoteText;
+  }
+  // Nach dem Laden eines Plans: Wurde etwas verworfen, das es im Katalog nicht mehr gibt (Modul oder Platz), wird
+  // einmal darauf hingewiesen und der bereinigte Plan sofort gespeichert. Beim naechsten Laden ist nichts mehr
+  // zu verwerfen, deshalb kommt der Hinweis nicht wieder. Status und Notizen der Plaetze bleiben.
+  function applyLoadReport(){
+    var r = lastReport; lastReport = null;
+    if (!r || !(r.mods.length || r.slots.length)) return;
+    var parts = r.mods.map(function(id){ return SL[id].label + ' (' + r.modVals[id] + ')'; });
+    if (r.slots.length) parts.push('Plätze: ' + idList(r.slots));
+    catnoteText = 'Der Katalog hat sich geändert. Diese Einträge gibt es nicht mehr und wurden entfernt: ' +
+      parts.join(', ') + '. Status und Notizen bleiben erhalten.';
+    save();
+    paintCatnote();
+  }
+  $('#catnoteOk').addEventListener('click', function(){ catnoteText = ''; paintCatnote(); });
+
+  function paintBackup(){
+    var due = !sandbox && !backupLater && !planIsEmpty() && backupDue(profile.lastExport, profile.created, new Date(), BACKUP_DAYS);
+    $('#backupnote').hidden = !due;
+    if (due) $('#backupnoteText').textContent = 'Dein Plan „' + profile.name + '“ wurde seit mindestens ' + BACKUP_DAYS +
+      ' Tagen nicht gesichert. Browserdaten können verloren gehen; ein Export sichert ihn als Datei.';
+  }
+  $('#backupnoteNow').addEventListener('click', function(){ exportPlan(); });
+  $('#backupnoteLater').addEventListener('click', function(){ backupLater = true; paintBackup(); });
+
+  /* ---------- Plaene (A8), Name und Untertitel (A12), Loeschen (A9) ---------- */
+  var deleted = null;   // der zuletzt geloeschte Plan {id, record, name}, nur in dieser Sitzung zurueckholbar
+  function profileList(){
+    var store = readStore(), list = profileIds(store).map(function(id){
+      return {id:id, name:saneText(store.profiles[id].name, NAME_MAX) || DEFAULT_NAME};
+    }), cur = null;
+    list.forEach(function(p){ if (p.id === profile.id) cur = p; });
+    if (!cur){ cur = {id:profile.id, name:profile.name}; list.push(cur); }   // noch nicht gespeichert
+    cur.name = profile.name;                                                  // das, was gerade getippt wird
+    return list;
+  }
+  function paintProfiles(){
+    $('#subtitle').textContent = profile.subtitle || (CAT.meta && CAT.meta.subtitle) || '';
+    var show = !sandbox && $('#welcome').hidden;
+    $('#profbar').hidden = !show;
+    if (!show){ $('#profEditBox').hidden = true; $('#profEdit').setAttribute('aria-expanded', 'false'); $('#profConfirm').hidden = true; }
+    $('#profUndo').hidden = !deleted || sandbox;
+    var sel = $('#profSel'), list = profileList();
+    sel.textContent = '';
+    list.forEach(function(p){
+      var o = document.createElement('option'); o.value = p.id; o.textContent = p.name; sel.appendChild(o);
+    });
+    sel.value = profile.id;
+    $('#profNew').disabled = list.length >= MAX_PROFILES;
+  }
+  function switchProfile(id){
+    if (sandbox || id === profile.id) return;
+    state = loadState(id);   // jede Aenderung ist schon gespeichert, nichts geht verloren
+    var store = readStore();
+    if (store){ store.active = profile.id; writeStore(store); }
+    swapView(); applyLoadReport();
+  }
+  function newProfile(){
+    if (sandbox) return;
+    save();   // der aktuelle Plan steht sicher im Speicher (auch im Arbeitsspeicher-Modus)
+    var store = readStore(), ids = profileIds(store);
+    if (ids.length >= MAX_PROFILES) return;
+    var used = {}, n = ids.length + 1;
+    ids.forEach(function(k){ used[saneText(store.profiles[k].name, NAME_MAX)] = 1; });
+    while (used['Plan ' + n]) n++;
+    profile = freshProfile(nextId(store), 'Plan ' + n);
+    state = {rev:Date.now(), m:{}, names:{}};
+    profile.created = state.rev;
+    save(); planChosen = true;
+    swapView(); openEdit();
+  }
+  function openEdit(){
+    $('#profEditBox').hidden = false; $('#profEdit').setAttribute('aria-expanded', 'true');
+    $('#profName').value = profile.name; $('#profSub').value = profile.subtitle;
+    $('#profSub').placeholder = (CAT.meta && CAT.meta.subtitle) || '';
+    $('#profName').focus(); $('#profName').select();
+  }
+  function closeEdit(){ $('#profEditBox').hidden = true; $('#profEdit').setAttribute('aria-expanded', 'false'); }
+  function askDelete(){
+    if (sandbox) return;
+    $('#profConfirmText').textContent = 'Plan „' + profile.name + '“ (' + passedLp(state.m) + ' LP bestanden) wirklich löschen?';
+    $('#profConfirm').hidden = false;
+    $('#profConfirmNo').focus();
+  }
+  function doDelete(){
+    if (sandbox) return;
+    $('#profConfirm').hidden = true;
+    save();   // sicherstellen, dass der Plan im Speicher steht, bevor er daraus entfernt wird
+    var store = readStore(), id = profile.id, next = null;
+    deleted = {id:id, record:store.profiles[id], name:profile.name};
+    delete store.profiles[id];
+    var rest = profileIds(store);
+    if (rest.length){
+      next = rest.filter(function(k){ return Number(k.slice(1)) < Number(id.slice(1)); }).pop() || rest[0];
+      store.active = next;
+    } else delete store.active;
+    writeStore(store);
+    state = loadState(next);          // ohne Plan: leerer Standardplan
+    if (!next) planChosen = false;    // der letzte Plan ist weg: zurueck zur Startauswahl (A2)
+    $('#profUndoText').textContent = 'Plan „' + deleted.name + '“ gelöscht.';
+    swapView();
+    if (!next) showWelcomeStep(false);
+    applyLoadReport();
+  }
+  function undoDelete(){
+    var d = deleted; if (!d || sandbox) return;
+    var store = readStore() || {v:2, active:null, profiles:{}};
+    var id = own(store.profiles, d.id) ? nextId(store) : d.id;   // die ID kann inzwischen vergeben sein
+    store.profiles[id] = d.record; store.active = id;
+    writeStore(store);
+    deleted = null; planChosen = true;
+    state = loadState(id);
+    swapView(); applyLoadReport();
+  }
+  $('#profSel').addEventListener('change', function(){ switchProfile(this.value); });
+  $('#profNew').addEventListener('click', newProfile);
+  $('#profEdit').addEventListener('click', function(){ if ($('#profEditBox').hidden) openEdit(); else closeEdit(); });
+  $('#profEditDone').addEventListener('click', function(){ closeEdit(); $('#profEdit').focus(); });
+  $('#profName').addEventListener('input', function(){
+    profile.name = saneText(this.value, NAME_MAX) || DEFAULT_NAME;
+    touch(); paintProfiles(); paintBackup();
+  });
+  $('#profName').addEventListener('blur', function(){ this.value = profile.name; });
+  $('#profSub').addEventListener('input', function(){
+    profile.subtitle = saneText(this.value, SUBTITLE_MAX);
+    touch(); paintProfiles();
+  });
+  $('#profDel').addEventListener('click', askDelete);
+  $('#profConfirmNo').addEventListener('click', function(){ $('#profConfirm').hidden = true; $('#profDel').focus(); });
+  $('#profConfirmYes').addEventListener('click', doDelete);
+  $('#profUndoBtn').addEventListener('click', undoDelete);
+  $('#profUndoClose').addEventListener('click', function(){ deleted = null; paintProfiles(); });
+
+  /* ---------- Startauswahl beim Erstbesuch (A2) ---------- */
+  // Erstbesuch = es gibt noch keinen v2-Schluessel. planChosen: in dieser Sitzung schon gewaehlt oder geaendert
+  // (noetig, wenn der Speicher blockiert ist und deshalb nie ein Schluessel entsteht).
+  var planChosen = false, welcomeTerm = '';
+  // Gibt es einen gespeicherten Plan? Ein unbrauchbarer Schluessel zaehlt als Plan (er wird nie ueberschrieben);
+  // ein Speicher ganz ohne Profile (alles geloescht) zaehlt nicht.
+  function planStored(){
+    var s = readStore();
+    if (s) return Object.keys(s.profiles).length > 0;
+    return !memStore && hasKey(LS);
+  }
+  function paintWelcome(){
+    $('#welcome').hidden = sandbox || planChosen || planStored();
+    paintProfiles();
+  }
+  function welcomeStart(){ return saneStart({term: welcomeTerm, year: $('#wYear').value.trim()}); }
+  function paintWelcomeGo(){ $('#wGo').disabled = !welcomeStart(); }
+  function showWelcomeStep(own){
+    $('#welcomeStart').hidden = own; $('#welcomeOwn').hidden = !own;
+    if (!own){ welcomeTerm = ''; $('#wYear').value = ''; setWelcomeTerm(''); paintWelcomeGo(); }
+  }
+  function setWelcomeTerm(term){
+    welcomeTerm = term;
+    Array.prototype.forEach.call(document.querySelectorAll('#welcome [data-term]'), function(b){
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-term') === term));
+    });
+  }
+  function finishWelcome(){
+    var st = welcomeStart(); if (!st) return;
+    profile.start = st;
+    touch(); paintStart(true); render();
+    $('#startTerm').focus();
+  }
+  $('#wOwn').addEventListener('click', function(){
+    showWelcomeStep(true);
+    document.querySelector('#welcome [data-term]').focus();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#welcome [data-term]'), function(b){
+    b.addEventListener('click', function(){
+      setWelcomeTerm(b.getAttribute('data-term')); paintWelcomeGo();
+      $('#wYear').focus();   // das Jahr wird direkt getippt, kein weiterer Klick noetig
+    });
+  });
+  $('#wYear').addEventListener('input', paintWelcomeGo);
+  $('#wYear').addEventListener('keydown', function(e){ if (e.key === 'Enter') finishWelcome(); });
+  $('#wGo').addEventListener('click', finishWelcome);
+  $('#wBack').addEventListener('click', function(){ showWelcomeStep(false); $('#wOwn').focus(); });
+
+  ['#startTerm', '#startYear'].forEach(function(sel){
+    $(sel).addEventListener('change', function(){
+      var st = readStart();
+      if (JSON.stringify(st) === JSON.stringify(profile.start)) return;   // z. B. erst die Semesterart gewaehlt
+      profile.start = st;
+      touch(); paintStart(false); render();
+    });
+  });
+
+  /* ---------- Beispielplan als Sandbox (A4) ---------- */
+  // Der Beispielstand liegt als Datenblock in der Seite (erfundene Daten, siehe demo/README.md).
+  // Solange sandbox gesetzt ist, schreiben save() und touch() nichts; der eigene Plan wird
+  // im Speicher beiseitegelegt (kept) und beim Verlassen zurueckgeholt.
+  var EXAMPLE = JSON.parse(document.getElementById('example').textContent);
+  var kept = null;
+  function paintSandbox(){
+    $('#sandbox').hidden = !sandbox;
+    $('#exampleLink').hidden = sandbox;
+    $('#nostore').hidden = storageOk || sandbox;
+    paintCatnote();
+    $('#export').disabled = sandbox;   // exportiert wird immer der eigene Plan, nie das Beispiel
+    $('#importBtn').disabled = sandbox;
+    $('#importBtn').title = sandbox ? 'Im Beispiel kann nichts importiert werden' : 'Plan aus einer JSON-Datei übernehmen';
+    $('#export').title = sandbox ? 'Im Beispiel gibt es nichts zu sichern' : 'Plan als JSON-Datei sichern';
+    paintWelcome();
+  }
+  function swapView(){
+    closeImport();
+    undoS = []; redoS = []; typingBase = null; typingPushed = false;
+    if (selected) closePanel();
+    $('#profConfirm').hidden = true;
+    paintStart(true); paintSandbox(); paintBackup(); render(); tb();
+  }
+  function enterSandbox(){
+    if (sandbox) return;
+    kept = {state:state, profile:profile, saveerr:!$('#saveerr').hidden, stale:false};
+    var s = sane(EXAMPLE.m, EXAMPLE.names), sem = EXAMPLE.currentSem;
+    state = {rev:0, m:s.m, names:s.names};
+    profile = freshProfile('example', 'Beispiel');
+    profile.start = (sem >= 1 && sem <= REGULAR_SEMESTERS && Math.floor(sem) === sem) ? startForSemester(sem, new Date()) : null;
+    sandbox = true;
+    $('#saveerr').hidden = true;
+    swapView();
+  }
+  // toOwn: der Knopf "Eigenen Plan starten"; sonst z. B. die Zurueck-Taste des Browsers
+  function leaveSandbox(toOwn){
+    if (!sandbox) return;
+    sandbox = false;
+    if (kept.stale){ state = loadState(); $('#saveerr').hidden = true; }
+    else { state = kept.state; profile = kept.profile; $('#saveerr').hidden = !kept.saveerr; }
+    kept = null;
+    try { if (location.hash === '#beispiel') history.replaceState(null, '', location.pathname + location.search); } catch(e){}
+    swapView();
+    if (!toOwn) return;
+    if ($('#welcome').hidden) $('#startTerm').focus();
+    else { showWelcomeStep(true); document.querySelector('#welcome [data-term]').focus(); }
+  }
+  $('#sandboxLeave').addEventListener('click', function(){ leaveSandbox(true); });
+  window.addEventListener('hashchange', function(){
+    if (location.hash === '#beispiel') enterSandbox(); else leaveSandbox(false);
+  });
+
+  // Aenderung in einem anderen Tab: die letzte Aenderung gewinnt, dieser Tab laedt nach.
+  window.addEventListener('storage', function(e){
+    if (e.storageArea !== localStorage || (e.key !== null && e.key !== LS)) return;
+    if (sandbox){ kept.stale = true; return; }   // der eigene Plan wird beim Verlassen neu geladen
+    state = loadState(profile.id);   // dieser Tab bleibt bei seinem Profil, solange es das noch gibt
+    undoS = []; redoS = []; typingBase = null; typingPushed = false;
+    paintStart(true);
+    paintWelcome();
+    paintBackup();
+    if (selected) closePanel(); else render();
+    tb();
+  });
+
+  /* ---------- theme (dunkel wie die Folie, solange nichts gewählt) ---------- */
+  var TK = 'studienverlauf-theme', root = document.documentElement;
+  function curTheme(){ return root.getAttribute('data-theme') || 'dark'; }
+  function paintTheme(){
+    var c = curTheme();
+    Array.prototype.forEach.call(document.querySelectorAll('.theme button'), function(b){
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-t') === c));
+    });
+  }
+  var sv = null;
+  try { sv = localStorage.getItem(TK); } catch(e){}
+  root.setAttribute('data-theme', (sv === 'dark' || sv === 'light') ? sv : 'dark');
+  paintTheme();
+  $('.theme').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    var t = b.getAttribute('data-t');
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem(TK, t); } catch(err){}
+    paintTheme();
+  });
+
+  /* ---------- start ---------- */
+  $('#cats').innerHTML = Object.keys(CATS).map(function(k){
+    return '<li><span class="hx" style="background:'+CATS[k].color+'"></span>'+esc(CATS[k].label)+'</li>';
+  }).join('');
+  render();
+  $('#nostore').hidden = storageOk;   // sofort beim Laden, nicht erst bei der ersten Aenderung
+  state = startState();
+  applyLoadReport();
+  paintStart(true);
+  paintWelcome();
+  paintBackup();
+  render();
+  tb();
+  if (location.hash === '#beispiel') enterSandbox();
+})();
+</script>

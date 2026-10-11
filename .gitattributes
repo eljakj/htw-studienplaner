@@ -1,0 +1,7 @@
+# Keep LF line endings everywhere, also when checked out on Windows.
+# Shell scripts, Dockerfiles and nginx config break with CRLF.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary

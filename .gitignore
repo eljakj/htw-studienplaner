@@ -1,0 +1,28 @@
+# Build output
+dist/
+
+# Personal data - must never be committed
+# (demo/profile.demo.json is fictional demo data and is NOT matched by these patterns)
+profile.json
+*.profile.json
+studienverlauf-*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Local environment and secrets
+.env
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

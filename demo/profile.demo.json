@@ -1,0 +1,37 @@
+{
+  "note": "Fictional example data for the sandbox (\"Beispiel ansehen\"). It describes no real person.",
+  "meta": {"currentSem": 4},
+  "slots": {
+    "B11": {"s": "ok", "n": ""},
+    "B12": {"s": "ok", "n": ""},
+    "B13": {"s": "ok", "n": ""},
+    "B14": {"s": "ok", "n": ""},
+    "B16": {"s": "ok", "n": ""},
+    "B15": {"s": "ok", "n": "", "mod": "F00201481"},
+
+    "B21": {"s": "ok", "n": ""},
+    "B22": {"s": "ok", "n": ""},
+    "B23": {"s": "ok", "n": ""},
+    "B24": {"s": "ok", "n": ""},
+    "B26": {"s": "ok", "n": "2. Versuch"},
+    "B25": {"s": "ok", "n": "", "mod": "F00201483"},
+
+    "B31": {"s": "ok", "n": ""},
+    "B32": {"s": "ok", "n": ""},
+    "B33": {"s": "retake", "n": "Wiederholung"},
+    "B34": {"s": "ok", "n": ""},
+    "B35": {"s": "ok", "n": ""},
+    "B36": {"s": "ok", "n": "", "mod": "A00310781"},
+    "B37": {"s": "ok", "n": "", "mod": "A0039037"},
+
+    "B41": {"s": "run", "n": "angemeldet"},
+    "B42": {"s": "run", "n": "angemeldet"},
+    "B43": {"s": "run", "n": "angemeldet"},
+    "B46": {"s": "run", "n": "angemeldet"},
+    "WP1": {"s": "run", "n": "", "mod": "B310"},
+    "WP2": {"s": "run", "n": "", "mod": "B312"},
+
+    "WP3": {"s": "plan", "n": "", "mod": "B313"},
+    "WP4": {"s": "plan", "n": "", "mod": "B311"}
+  }
+}

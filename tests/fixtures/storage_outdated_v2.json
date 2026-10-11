@@ -1,0 +1,22 @@
+{
+  "v": 2,
+  "active": "p1",
+  "profiles": {
+    "p1": {
+      "name": "Mein Plan",
+      "start": {"term": "SoSe", "year": 2025},
+      "rev": 1760000000000,
+      "created": 1750000000000,
+      "m": {
+        "B31": {"s": "ok", "n": "bleibt"},
+        "B32": {"s": "run", "n": ""},
+        "WP1": {"s": "ok", "n": "Modul gestrichen", "mod": "B9991"},
+        "WP2": {"s": "run", "n": "", "mod": "B310"},
+        "B36": {"s": "ok", "n": "AWE weg", "mod": "A99999999"},
+        "B15": {"s": "ok", "n": "", "mod": "F00201481"},
+        "X77": {"s": "ok", "n": "Platz gestrichen"}
+      },
+      "names": {"B11": "Eigener Titel"}
+    }
+  }
+}
